@@ -1,0 +1,7 @@
+#!/bin/bash
+USERS=`/opt/zextras/bin/zmprov -l gaa`
+for x in $USERS
+do
+    echo "usuario: $x"
+    /opt/zextras/bin/zmmailbox -z -m $x getRestURL -u https://$HOSTNAME "//?fmt=tgz"> /opt/backup/buzones-total/$x.tgz
+done

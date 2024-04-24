@@ -1,0 +1,26 @@
+#!/bin/bash
+# Script de borrado cruzado de correos en el buzón de los usuarios, creado para el curso de Carbonio de Aula Util
+# Copyrigth 2024 Clever Flores
+# clever@aulautil.com
+cuentas=`/opt/zextras/bin/zmprov -l gaa|egrep -v "(admin|ham\.|spam|galsync|virus)"`
+if [[ -z "$1" && -z "$2" ]]
+then
+        echo ejecute de esta forma: $0 '"asunto mensaje"' 15/04/2022
+        echo fecha en formato dd/mm/YYYY
+        exit 0
+fi
+ 
+for c in $cuentas
+do
+        echo $c
+        echo "/opt/zextras/bin/zmmailbox -z -m $c search -t message \"in:INBOX (before: $2)\" | grep -i \"$1\"|cut -d \".\" -f 2|cut -d \"m\" -f1|sed -e \"s/ //g\""
+        ids=`/opt/zextras/bin/zmmailbox -z -m $c search -t message "in:INBOX (before: $2)" | grep -i "$1"| cut -d "." -f 2|cut -d "m" -f1|sed -e "s/ //g"`
+        if [[ ! -z "$ids" ]]
+        then
+                for id in $ids
+                do
+                        echo borrar cuenta $c mensaje $id
+                       /opt/zextras/bin/zmmailbox -z -m $c dm $id
+                done
+        fi
+done

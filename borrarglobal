@@ -1,0 +1,7 @@
+# Busca los mensajes con el asunto "feliz cumpleaños"
+ids=$(zmmailbox -z -m ana.soares@satelital.edu.pe s -t message "subject:¡FELIZ CUMPLEAÑOS" | grep '^Id:' | awk '{print $2}')
+
+# Elimina los mensajes encontrados
+for id in $ids; do
+    zmmailbox -z -m ana.soares@satelital.edu.pe dm $id
+done

@@ -1,0 +1,27 @@
+#!/usr/bin/php
+<?php
+# Script incremental de buzones de Carbonio
+# Copyright Clever Flores clever@aulautil.com
+# 2024
+ 
+$HOSTNAME= trim(`hostname`);
+ 
+if(!is_dir("/opt/backup/incremental")){
+        system("mkdir /opt/backup/incremental");
+}
+ 
+$hoy=date("n/d/Y",time());
+$ayer=date("n/d/Y",(time()-86400*2));
+$ayercito=date("Y-m-d",(time()-86400));
+exec("/opt/zextras/bin/zmprov -l gaa | grep -v ham. | grep -v spam. | grep -v virus-quarantine",$USERS);
+ 
+$query="after:$ayer before:$hoy";
+ 
+foreach($USERS as $user){
+        $user = chop($user);
+        if(!is_dir("/opt/backup/incremental/$user")){
+                system("mkdir /opt/backup/incremental/$user");
+        }
+        echo ("/opt/zextras/bin/zmmailbox -z -m $user  gru -u https://$HOSTNAME '//?fmt=tgz&query=$query' > /opt/backup/incremental/$user/$ayercito.tgz\n");
+        system  ("/opt/zextras/bin/zmmailbox -z -m $user  gru -u https://$HOSTNAME '//?fmt=tgz&query=$query' > /opt/backup/incremental/$user/$ayercito.tgz");
+}

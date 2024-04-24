@@ -1,0 +1,20 @@
+#!/bin/bash
+echo "Haciendo la copia en caliente"
+rsync -avz --delete /opt/zextras /opt/backup --exclude 'zextras/data/ldap/mdb/db/data.mdb'
+ 
+echo "deteniendo carbonio"
+su - zextras -c "zmcontrol stop"
+systemctl stop carbonio*
+systemctl stop postgresql
+ 
+echo "hacer la copia incremental espejo"
+rsync -avz --delete /opt/zextras /opt/backup --exclude 'zextras/data/ldap/mdb/db/data.mdb'
+rsync -avz --delete /var/lib/postgresql /opt/backup/var/lib/
+ 
+rm -f /opt/backup/zextras/data/ldap/mdb/db/*
+su - zextras -c "mdb_copy /opt/zextras/data/ldap/mdb/db/ /opt/backup/zextras/data/ldap/mdb/db/"
+ 
+echo "levantando carbonio"
+su - zextras -c "zmcontrol start"
+systemctl start carbonio*
+systemctl start postgresql
